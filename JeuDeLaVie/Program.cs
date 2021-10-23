@@ -170,25 +170,25 @@ namespace JeuDeLaVie
                         if (nbNeighboor == 3)
                         {
                             cell.ComeAlive();
-                            Console.Write("Apparition vie");
+                            //Console.Write("Apparition vie"); //Debug
                         }
                         else
                         {
                             cell.PassAway();
-                            Console.Write("Rien de spécial");
+                            //Console.Write("Rien de spécial"); //Debug
                         }
                     }
                     else if (nbNeighboor != 2 && nbNeighboor != 3)
                     {
                         cell.PassAway();
-                        Console.Write("Mort de la cellule");
+                        //Console.Write("Mort de la cellule"); //Debug
                     }
                     else
                     {
                         cell.ComeAlive();
-                        Console.Write("La cellule survit");
+                        //Console.Write("La cellule survit"); //Debug
                     }
-                    Console.WriteLine($" nb Parents = {nbNeighboor} {coords}");
+                    //Console.WriteLine($" nb Parents = {nbNeighboor} {coords}"); //Debug
                 }
             }
 
@@ -206,16 +206,18 @@ namespace JeuDeLaVie
         public Grid grid;
         private readonly List<Coords> AliveCellsCoords = new List<Coords>();
 
-        public Game(int nbCells, int nbIterations, float randmin, float randmax)
+        public Game(int nbCells, int nbIterations, int nbAlive)
         {
             this.n = nbCells;
             this.iter = nbIterations;
             Random random = new();
-            for (int loop = 0; loop < random.Next((int)(randmin*Math.Pow(n,2)),(int)(randmax*Math.Pow(n,2))); loop++)
+            for (int loop = 0; loop < nbAlive; loop++)
             {
                 Coords coords = new Coords(random.Next(n), random.Next(n));
-                if(!AliveCellsCoords.Contains(coords))
+                if (!AliveCellsCoords.Contains(coords))
                     AliveCellsCoords.Add(coords);
+                else
+                    loop--;
             }
             grid = new Grid(n, AliveCellsCoords);
         }
@@ -224,9 +226,13 @@ namespace JeuDeLaVie
         {
             for (int loop = 0; loop < iter; loop++)
             {
-                grid.DisplayGrid();
-                grid.UpdateGrid();
-                Console.ReadLine();
+                if (grid.GetCoordsCellsAlive().Any())
+                {
+                    grid.DisplayGrid();
+                    grid.UpdateGrid();
+                    Console.ReadLine();
+                    Console.WriteLine(grid.GetCoordsCellsAlive());
+                }
             }
             grid.DisplayGrid();
         }
@@ -241,14 +247,11 @@ namespace JeuDeLaVie
             
             Console.Write("Nombre itérations ? ");
             int nbIter = Int32.Parse(Console.ReadLine());
+
+            Console.Write("Nombre cellules vivantes ? ");
+            int nbAlive = Int32.Parse(Console.ReadLine());
             
-            Console.Write("Minimum random création ? ");
-            float randMin = float.Parse(Console.ReadLine());
-            
-            Console.Write("Maximum random création ? ");
-            float randMax = float.Parse(Console.ReadLine());
-            
-            Game game = new Game(nbCell, nbIter, randMin, randMax);
+            Game game = new Game(nbCell, nbIter, nbAlive);
             game.RunGameConsole();
         }
     }
